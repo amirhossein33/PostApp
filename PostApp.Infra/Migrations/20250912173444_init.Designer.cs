@@ -12,8 +12,8 @@ using PostApp.Infra.Data;
 namespace PostApp.Infra.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250912144644_init22")]
-    partial class init22
+    [Migration("20250912173444_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -157,6 +157,9 @@ namespace PostApp.Infra.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("ManagerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MissionStatus")
                         .HasColumnType("int");
 
                     b.Property<string>("Origin")

@@ -1,4 +1,6 @@
-﻿namespace PostApp.Domain.Entities;
+﻿using PostApp.Domain.Constants;
+
+namespace PostApp.Domain.Entities;
 
 public class Mission : BaseEntity
 {
@@ -6,6 +8,7 @@ public class Mission : BaseEntity
     public required string Origin { get; set; }
     public required string Destination { get; set; }
     public DateTime CreatedDatetime { get; set; }
+    public MissionStatus MissionStatus { get; set; }
     public int ManagerId { get; set; }
     public int DriverId { get; set; }
     public required Manager Manager { get; set; }

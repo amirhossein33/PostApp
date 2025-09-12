@@ -156,6 +156,9 @@ namespace PostApp.Infra.Migrations
                     b.Property<int>("ManagerId")
                         .HasColumnType("int");
 
+                    b.Property<int>("MissionStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("Origin")
                         .IsRequired()
                         .HasMaxLength(200)
