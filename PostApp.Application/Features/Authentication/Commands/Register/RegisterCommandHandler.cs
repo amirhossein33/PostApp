@@ -1,7 +1,6 @@
 using MediatR;
 using PostApp.Application.Common.Exceptions;
 using PostApp.Application.Interfaces.Repositories;
-using PostApp.Domain.Constants;
 using PostApp.Domain.Entities;
 
 namespace PostApp.Application.Features.Authentication.Commands.Register;
@@ -42,69 +41,33 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         // Hash password
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-        if (request.Role == UserRoles.Manager)
+
+        // Check if manager number already exists
+        var existingManagerByNumber = await _managerRepository.GetByManagerNumberAsync(request.ManagerNumber!);
+        if (existingManagerByNumber != null)
         {
-            // Check if manager number already exists
-            var existingManagerByNumber = await _managerRepository.GetByManagerNumberAsync(request.ManagerNumber!);
-            if (existingManagerByNumber != null)
-            {
-                throw new ValidationException("Manager with this number already exists");
-            }
-
-            var manager = new Manager
-            {
-                Name = request.Name,
-                ManagerNumber = request.ManagerNumber!,
-                Username = request.Username,
-                Email = request.Email,
-                PasswordHash = passwordHash,
-                CreatedAt = DateTime.UtcNow,
-            };
-
-            await _managerRepository.AddAsync(manager);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new RegisterResult
-            {
-                Success = true,
-                Message = "Manager registered successfully",
-                UserId = manager.Id
-            };
+            throw new ValidationException("Manager with this number already exists");
         }
-        else if (request.Role == UserRoles.Driver)
+
+        var manager = new Manager
         {
-            // Check if driver number already exists
-            var existingDriverByNumber = await _driverRepository.GetByDriverNumberAsync(request.DriverNumber!);
-            if (existingDriverByNumber != null)
-            {
-                throw new ValidationException("Driver with this number already exists");
-            }
+            Name = request.Name,
+            ManagerNumber = request.ManagerNumber!,
+            Username = request.Username,
+            Email = request.Email,
+            PasswordHash = passwordHash,
+            CreatedAt = DateTime.UtcNow,
+        };
 
-            var driver = new Driver
-            {
-                Name = request.Name,
-                DriverNumber = request.DriverNumber!,
-                Username = request.Username,
-                Email = request.Email,
-                PasswordHash = passwordHash,
-                CreatedAt = DateTime.UtcNow,
-                Active = true,
-                IsRunning = false
-            };
+        await _managerRepository.AddAsync(manager);
+        await _unitOfWork.SaveChangesAsync();
 
-            await _driverRepository.AddAsync(driver);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new RegisterResult
-            {
-                Success = true,
-                Message = "Driver registered successfully",
-                UserId = driver.Id
-            };
-        }
-        else
+        return new RegisterResult
         {
-            throw new ValidationException("Invalid role specified");
-        }
+            Success = true,
+            Message = "Manager registered successfully",
+            UserId = manager.Id
+        };
+
     }
 }
