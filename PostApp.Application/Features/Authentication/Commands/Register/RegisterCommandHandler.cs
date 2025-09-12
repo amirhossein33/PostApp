@@ -1,6 +1,7 @@
 using MediatR;
 using PostApp.Application.Common.Exceptions;
 using PostApp.Application.Interfaces.Repositories;
+using PostApp.Domain.Constants;
 using PostApp.Domain.Entities;
 
 namespace PostApp.Application.Features.Authentication.Commands.Register;
@@ -41,33 +42,69 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         // Hash password
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-
-        // Check if manager number already exists
-        var existingManagerByNumber = await _managerRepository.GetByManagerNumberAsync(request.ManagerNumber!);
-        if (existingManagerByNumber != null)
+        if (request.Role == UserRoles.Manager)
         {
-            throw new ValidationException("Manager with this number already exists");
+            // Check if manager number already exists
+            var existingManagerByNumber = await _managerRepository.GetByManagerNumberAsync(request.ManagerNumber!);
+            if (existingManagerByNumber != null)
+            {
+                throw new ValidationException("Manager with this number already exists");
+            }
+
+            var manager = new Manager
+            {
+                Name = request.Name,
+                ManagerNumber = request.ManagerNumber!,
+                Username = request.Username,
+                Email = request.Email,
+                PasswordHash = passwordHash,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await _managerRepository.AddAsync(manager);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new RegisterResult
+            {
+                Success = true,
+                Message = "Manager registered successfully",
+                UserId = manager.Id
+            };
         }
-
-        var manager = new Manager
+        else if (request.Role == UserRoles.Driver)
         {
-            Name = request.Name,
-            ManagerNumber = request.ManagerNumber!,
-            Username = request.Username,
-            Email = request.Email,
-            PasswordHash = passwordHash,
-            CreatedAt = DateTime.UtcNow,
-        };
+            // Check if driver number already exists
+            var existingDriverByNumber = await _driverRepository.GetByDriverNumberAsync(request.DriverNumber!);
+            if (existingDriverByNumber != null)
+            {
+                throw new ValidationException("Driver with this number already exists");
+            }
 
-        await _managerRepository.AddAsync(manager);
-        await _unitOfWork.SaveChangesAsync();
+            var driver = new Driver
+            {
+                Name = request.Name,
+                DriverNumber = request.DriverNumber!,
+                Username = request.Username,
+                Email = request.Email,
+                PasswordHash = passwordHash,
+                CreatedAt = DateTime.UtcNow,
+                Active = true,
+                IsRunning = false
+            };
 
-        return new RegisterResult
+            await _driverRepository.AddAsync(driver);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new RegisterResult
+            {
+                Success = true,
+                Message = "Driver registered successfully",
+                UserId = driver.Id
+            };
+        }
+        else
         {
-            Success = true,
-            Message = "Manager registered successfully",
-            UserId = manager.Id
-        };
-
+            throw new ValidationException("Invalid role specified");
+        }
     }
 }
