@@ -2,14 +2,7 @@
 
 A simple postal company management system built with **Clean Architecture** principles, featuring modern .NET technologies and best practices.
 
-## 🚀 Features
 
-- **User Management**: Separate authentication for Managers and Drivers
-- **JWT Authentication**: Secure token-based authentication with role-based authorization
-- **Mission Management**: Create, assign and track postal missions
-- **Clean Architecture**: Well-structured, maintainable and testable codebase
-- **CQRS Pattern**: Separation of commands and queries for better performance
-- **Minimal APIs**: Fast, lightweight endpoint implementation
 
 ## 🏗️ Architecture
 
