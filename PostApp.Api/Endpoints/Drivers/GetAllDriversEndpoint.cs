@@ -20,9 +20,8 @@ public static class GetAllDriversEndpoint
             {
                 try
                 {
-                    // Check if user is a manager
                     var roleClaim = context.User.FindFirst(ClaimTypes.Role);
-                    
+
                     if (roleClaim?.Value != "Manager")
                     {
                         return Unauthorized("Only managers can view all drivers");

@@ -22,7 +22,6 @@ public static class CreateMissionEndpoint
             {
                 try
                 {
-                    // Get manager ID from JWT token claims
                     var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier);
                     var roleClaim = context.User.FindFirst(ClaimTypes.Role);
 
